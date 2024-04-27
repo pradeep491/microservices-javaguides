@@ -14,12 +14,4 @@ public class UserServiceApplication {
         SpringApplication.run(UserServiceApplication.class, args);
     }
 
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
-    /*@Bean
-    public WebClient webClient(){
-        return WebClient.builder().build();
-    }*/
 }

@@ -19,7 +19,7 @@ import org.springframework.web.client.RestTemplate;
 public class UserServiceImpl implements UserService {
 
     private UserRepository userRepository;
-    private APIClient apiClient;
+    private RestTemplate restTemplate;
 
     @Override
     public User saveUser(User user) {
@@ -33,9 +33,13 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId).get();
         UserDTO userDto = mapToUser(user);
 
-        //Using Open Feign Client
-        log.info("Feign Client Approach");
-        DepartmentDTO departmentDto = apiClient.getDepartmentById(Long.parseLong(user.getDepartmentId()));
+        //1. Using Rest Template
+        ResponseEntity<DepartmentDTO> responseEntity = restTemplate
+                .getForEntity("http://localhost:9091/api/departments/" + user.getDepartmentId(),
+                        DepartmentDTO.class);
+
+        DepartmentDTO departmentDto = responseEntity.getBody();
+        System.out.println(responseEntity.getStatusCode());
 
         responseDto.setUser(userDto);
         responseDto.setDepartment(departmentDto);

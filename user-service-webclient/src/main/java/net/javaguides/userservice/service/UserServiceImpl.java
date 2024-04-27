@@ -10,6 +10,7 @@ import net.javaguides.userservice.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 //import org.springframework.web.reactive.function.client.WebClient;
 
 
@@ -19,7 +20,8 @@ import org.springframework.web.client.RestTemplate;
 public class UserServiceImpl implements UserService {
 
     private UserRepository userRepository;
-    private APIClient apiClient;
+    private WebClient webClient;
+
 
     @Override
     public User saveUser(User user) {
@@ -33,9 +35,12 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId).get();
         UserDTO userDto = mapToUser(user);
 
-        //Using Open Feign Client
-        log.info("Feign Client Approach");
-        DepartmentDTO departmentDto = apiClient.getDepartmentById(Long.parseLong(user.getDepartmentId()));
+        //Using Web Client
+        DepartmentDTO departmentDto = webClient.get()
+                .uri("http://localhost:9091/api/departments/" + user.getDepartmentId())
+                .retrieve()
+                .bodyToMono(DepartmentDTO.class)
+                .block();
 
         responseDto.setUser(userDto);
         responseDto.setDepartment(departmentDto);
